@@ -344,6 +344,8 @@ private fun WeekSelector(
     onChooseWeek: () -> Unit,
 ) {
     val formatter = remember { DateTimeFormatter.ofPattern("dd MMM", Locale("pt", "BR")) }
+    val previousWeekDescription = stringResource(R.string.new_plan_previous_week)
+    val nextWeekDescription = stringResource(R.string.new_plan_next_week)
     Surface(
         modifier = Modifier.fillMaxWidth(),
         color = MaterialTheme.colorScheme.surfaceVariant,
@@ -358,7 +360,7 @@ private fun WeekSelector(
             IconButton(
                 onClick = onPreviousWeek,
                 modifier = Modifier.semantics {
-                    contentDescription = stringResource(R.string.new_plan_previous_week)
+                    contentDescription = previousWeekDescription
                 },
             ) { Text("‹", style = MaterialTheme.typography.headlineMedium) }
             Column(
@@ -378,7 +380,7 @@ private fun WeekSelector(
             IconButton(
                 onClick = onNextWeek,
                 modifier = Modifier.semantics {
-                    contentDescription = stringResource(R.string.new_plan_next_week)
+                    contentDescription = nextWeekDescription
                 },
             ) { Text("›", style = MaterialTheme.typography.headlineMedium) }
         }
