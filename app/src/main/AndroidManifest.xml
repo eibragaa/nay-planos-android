@@ -7,6 +7,8 @@
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:label="@string/app_name"
+        android:icon="@drawable/ic_nay_planos"
+        android:roundIcon="@drawable/ic_nay_planos"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity

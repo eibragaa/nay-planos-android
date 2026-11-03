@@ -14,13 +14,18 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.IconButton
 import androidx.compose.foundation.Image
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
@@ -39,13 +44,18 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import br.com.eibragaa.nayplanos.R
 import br.com.eibragaa.nayplanos.domain.editor.WeeklyPlanEditorState
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NewPlanScreen(
     state: WeeklyPlanEditorState,
     thumbnail: ImageBitmap?,
+    onChangeWeek: (LocalDate) -> Unit,
     onSelectDay: (index: Int) -> Unit,
     onTextChange: (text: String) -> Unit,
     onPickImage: (sourceReference: String) -> Unit,
@@ -74,6 +84,36 @@ fun NewPlanScreen(
     val cameraLabel = stringResource(R.string.new_plan_take_photo)
     val cameraDescription = stringResource(R.string.new_plan_take_photo_description)
     var pendingCaptureUri by rememberSaveable { mutableStateOf<String?>(null) }
+    var isWeekPickerVisible by rememberSaveable { mutableStateOf(false) }
+
+    if (isWeekPickerVisible) {
+        val datePickerState = androidx.compose.material3.rememberDatePickerState(
+            initialSelectedDateMillis = state.days.first().date
+                .atStartOfDay()
+                .toInstant(ZoneOffset.UTC)
+                .toEpochMilli(),
+        )
+        DatePickerDialog(
+            onDismissRequest = { isWeekPickerVisible = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        datePickerState.selectedDateMillis
+                            ?.let { Instant.ofEpochMilli(it).atZone(ZoneOffset.UTC).toLocalDate() }
+                            ?.let { onChangeWeek(it) }
+                        isWeekPickerVisible = false
+                    },
+                ) { Text(stringResource(R.string.new_plan_choose_week)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { isWeekPickerVisible = false }) {
+                    Text(stringResource(android.R.string.cancel))
+                }
+            },
+        ) {
+            DatePicker(state = datePickerState, showModeToggle = false)
+        }
+    }
 
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture(),
@@ -141,6 +181,14 @@ fun NewPlanScreen(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
+
+            WeekSelector(
+                weekStart = state.days.first().date,
+                weekEnd = state.days.last().date,
+                onPreviousWeek = { onChangeWeek(state.days.first().date.minusWeeks(1)) },
+                onNextWeek = { onChangeWeek(state.days.first().date.plusWeeks(1)) },
+                onChooseWeek = { isWeekPickerVisible = true },
+            )
 
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
@@ -283,6 +331,56 @@ fun NewPlanScreen(
             ) {
                 Text(stringResource(R.string.new_plan_export_docx))
             }
+        }
+    }
+}
+
+@Composable
+private fun WeekSelector(
+    weekStart: LocalDate,
+    weekEnd: LocalDate,
+    onPreviousWeek: () -> Unit,
+    onNextWeek: () -> Unit,
+    onChooseWeek: () -> Unit,
+) {
+    val formatter = remember { DateTimeFormatter.ofPattern("dd MMM", Locale("pt", "BR")) }
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        shape = MaterialTheme.shapes.large,
+        tonalElevation = 1.dp,
+        onClick = onChooseWeek,
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
+            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+        ) {
+            IconButton(
+                onClick = onPreviousWeek,
+                modifier = Modifier.semantics {
+                    contentDescription = stringResource(R.string.new_plan_previous_week)
+                },
+            ) { Text("‹", style = MaterialTheme.typography.headlineMedium) }
+            Column(
+                modifier = Modifier.weight(1f),
+                horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally,
+            ) {
+                Text(
+                    text = stringResource(R.string.new_plan_week_selector_label),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Text(
+                    text = "${weekStart.format(formatter)} — ${weekEnd.format(formatter)}",
+                    style = MaterialTheme.typography.titleMedium,
+                )
+            }
+            IconButton(
+                onClick = onNextWeek,
+                modifier = Modifier.semantics {
+                    contentDescription = stringResource(R.string.new_plan_next_week)
+                },
+            ) { Text("›", style = MaterialTheme.typography.headlineMedium) }
         }
     }
 }

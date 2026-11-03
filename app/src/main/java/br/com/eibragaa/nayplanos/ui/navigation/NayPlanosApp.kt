@@ -58,12 +58,16 @@ fun NayPlanosApp(
 ) {
     var selectedDestinationName by rememberSaveable { mutableStateOf(AppDestination.HOME.name) }
     val today = remember { LocalDate.now() }
-    val monday = remember(today) { today.with(DayOfWeek.MONDAY) }
-    var editorState by remember(monday) {
+    val initialMonday = remember(today) { today.with(DayOfWeek.MONDAY) }
+    var selectedWeekStartText by rememberSaveable { mutableStateOf(initialMonday.toString()) }
+    val selectedWeekStart = remember(selectedWeekStartText) {
+        runCatching { LocalDate.parse(selectedWeekStartText) }.getOrDefault(initialMonday)
+    }
+    var editorState by remember(selectedWeekStart) {
         mutableStateOf(
             WeeklyPlanEditorState(
                 days = (0L until WeeklyPlanEditorState.WEEK_LENGTH.toLong()).map { offset ->
-                    PlanDay(date = monday.plusDays(offset))
+                    PlanDay(date = selectedWeekStart.plusDays(offset))
                 },
             ),
         )
@@ -143,10 +147,20 @@ fun NayPlanosApp(
                 .padding(contentPadding),
         ) {
             when (selectedDestination) {
-                AppDestination.HOME -> HomeScreen()
+                AppDestination.HOME -> HomeScreen(
+                    weekStart = selectedWeekStart,
+                    onNewPlan = { selectedDestinationName = AppDestination.NEW_PLAN.name },
+                    onHistory = { selectedDestinationName = AppDestination.HISTORY.name },
+                )
                 AppDestination.NEW_PLAN -> NewPlanScreen(
                     state = editorState,
                     thumbnail = selectedDayThumbnail,
+                    onChangeWeek = { pickedDate ->
+                        if (!isSaving && !isImageOperationInProgress && !isExporting) {
+                            selectedWeekStartText = pickedDate.with(DayOfWeek.MONDAY).toString()
+                            hasSavedCurrentWeek = false
+                        }
+                    },
                     canSave = !isSaving && !isImageOperationInProgress && !hasSavedCurrentWeek &&
                         !isExporting &&
                         WeeklyPlanValidator.validate(

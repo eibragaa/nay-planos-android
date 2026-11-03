@@ -1,6 +1,19 @@
 <resources>
     <string name="app_name">Nay Planos</string>
     <string name="home_title">Nay Planos</string>
+    <string name="brand_mark_description">Marca Nay Planos</string>
+    <string name="home_greeting">Seu espaço de planejamento</string>
+    <string name="home_headline">Planeje com leveza.</string>
+    <string name="home_subtitle">Organize a semana, registre as ideias e compartilhe o plano pronto.</string>
+    <string name="home_week_label">SEMANA EM FOCO</string>
+    <string name="home_week_range">%1$s — %2$s</string>
+    <string name="home_week_supporting">Escolha a semana e monte o próximo passo da sua turma.</string>
+    <string name="home_open_week">Abrir semana</string>
+    <string name="home_new_plan_card_title">Novo plano</string>
+    <string name="home_new_plan_card_description">Comece uma semana do seu jeito.</string>
+    <string name="home_history_card_title">Histórico</string>
+    <string name="home_history_card_description">Veja o que já foi planejado.</string>
+    <string name="home_empty_hint">Tudo fica salvo neste dispositivo.</string>
     <string name="empty_state_title">Sua semana começa aqui</string>
     <string name="empty_state_message">Seus planos de aula aparecerão aqui quando você criar o primeiro.</string>
     <string name="home_description">Início do Nay Planos</string>
@@ -11,6 +24,11 @@
     <string name="new_plan_title">Novo plano</string>
     <string name="new_plan_description">A criação de planos estará disponível em uma próxima etapa.</string>
     <string name="new_plan_week_range">Semana de %1$s a %2$s</string>
+    <string name="new_plan_week_selector_label">Semana selecionada</string>
+    <string name="new_plan_previous_week">Semana anterior</string>
+    <string name="new_plan_next_week">Próxima semana</string>
+    <string name="new_plan_choose_week">Escolher outra semana</string>
+    <string name="new_plan_week_picker_title">Escolha um dia da semana desejada</string>
     <string name="new_plan_days_label">Dias da semana</string>
     <string name="new_plan_no_class_status">Sem aula neste dia.</string>
     <string name="new_plan_activity_label">Atividade do dia</string>
