@@ -193,8 +193,7 @@ class MinimalDocxGeneratorTest {
         return try {
             factory.newDocumentBuilder().parse(InputSource(StringReader(xml)))
         } catch (error: Exception) {
-            System.err.println("INVALID_XML=$xml")
-            throw error
+            throw AssertionError("Invalid XML: ${error.message}\n$xml", error)
         }
     }
 }
