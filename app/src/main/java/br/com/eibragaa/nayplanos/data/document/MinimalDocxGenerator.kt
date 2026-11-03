@@ -83,7 +83,7 @@ class MinimalDocxGenerator : PlanDocumentGenerator {
         "<w:tr>${cell(day)}${cell(activity, image, drawingId)}</w:tr>"
 
     private fun cell(value: String, image: ImagePart? = null, drawingId: Int = 0): String =
-        "<w:tc><w:tcPr><w:tcW w:w=\"0\" w:type=\"auto\"/></w:tcPr>${value.split("\n").joinToString("") { paragraph(it) }}${image?.let { "<w:p>${drawing(it, drawingId)}</w:p>" }.orEmpty()}</w:tc>"
+        "<w:tc><w:tcPr><w:tcW w:w=\"0\" w:type=\"auto\"/></w:tcPr>${paragraph(value)}${image?.let { "<w:p>${drawing(it, drawingId)}</w:p>" }.orEmpty()}</w:tc>"
 
     private fun drawing(image: ImagePart, id: Int): String {
         val description = escapeXml(image.image.description.orEmpty())
