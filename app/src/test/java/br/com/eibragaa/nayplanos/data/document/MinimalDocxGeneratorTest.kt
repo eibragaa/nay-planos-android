@@ -190,6 +190,11 @@ class MinimalDocxGeneratorTest {
     private fun parseXml(xml: String): org.w3c.dom.Document {
         val factory = DocumentBuilderFactory.newInstance()
         factory.isNamespaceAware = true
-        return factory.newDocumentBuilder().parse(InputSource(StringReader(xml)))
+        return try {
+            factory.newDocumentBuilder().parse(InputSource(StringReader(xml)))
+        } catch (error: Exception) {
+            System.err.println("INVALID_XML=$xml")
+            throw error
+        }
     }
 }
