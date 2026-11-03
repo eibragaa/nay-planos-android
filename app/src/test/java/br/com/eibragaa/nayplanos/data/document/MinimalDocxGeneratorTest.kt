@@ -193,7 +193,8 @@ class MinimalDocxGeneratorTest {
         return try {
             factory.newDocumentBuilder().parse(InputSource(StringReader(xml)))
         } catch (error: Exception) {
-            throw AssertionError("Invalid XML: ${error.message}\n$xml", error)
+            org.junit.Assert.fail("Invalid XML: ${error.message} XML=${xml.take(2000)}")
+            error("unreachable")
         }
     }
 }
