@@ -8,19 +8,19 @@ principal bem evidente.
 
 ## Marca
 
-O símbolo é um caderno aberto com um ponto de criatividade no topo. Ele representa registrar,
-revisar e compartilhar ideias de aula sem transformar a rotina da professora em uma tela técnica.
+O símbolo é uma folha de planejamento com dobra e uma pequena estrela de ideia. Ele representa
+registrar, revisar e compartilhar ideias de aula sem transformar a rotina da professora em uma tela técnica.
 
 ## Cores
 
 | Papel | Hex | Uso |
 | --- | --- | --- |
-| Coral Nay | `#C95749` | ação principal e marca |
-| Coral suave | `#FFDAD2` | card da semana e destaques |
-| Verde folha | `#4F7D70` | apoio, sucesso e equilíbrio |
-| Dourado giz | `#B87823` | detalhes e estados informativos |
-| Papel | `#FFF9F5` | fundo claro |
-| Tinta | `#251A17` | texto principal |
+| Azul Nay | `#234E70` | ação principal e marca |
+| Azul névoa | `#DCEAF4` | card da semana e destaques |
+| Lavanda | `#5D6B9D` | apoio e navegação secundária |
+| Estrela | `#D89B3D` | detalhes e estados informativos |
+| Fundo | `#F8FAFC` | fundo claro |
+| Tinta | `#17212B` | texto principal |
 
 ## Componentes
 

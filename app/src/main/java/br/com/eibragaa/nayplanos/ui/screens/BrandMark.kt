@@ -8,8 +8,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.semantics.contentDescription
@@ -33,22 +33,35 @@ fun NayBrandMark(
             ),
     ) {
         Canvas(modifier = Modifier.matchParentSize()) {
-            val page = Color(0xFFFFF9F5)
-            val center = size.width / 2f
-            val top = size.height * .28f
-            val bottom = size.height * .72f
-            val left = size.width * .2f
-            val right = size.width * .8f
-            val fold = Path().apply {
-                moveTo(center, top)
-                lineTo(center, bottom)
+            val paper = Color(0xFFF7FBFF)
+            val ink = LightPrimary
+            val gold = Color(0xFFF2C777)
+            val left = size.width * .23f
+            val top = size.height * .2f
+            val right = size.width * .77f
+            val bottom = size.height * .8f
+            val foldX = size.width * .61f
+            val foldY = size.height * .34f
+            val sheet = Path().apply {
+                moveTo(left, top)
+                lineTo(foldX, top)
+                lineTo(right, foldY)
+                lineTo(right, bottom)
+                lineTo(left, bottom)
+                close()
             }
-            drawPath(fold, page, style = Stroke(width = size.width * .055f))
-            drawLine(page, Offset(left, top), Offset(center, top + size.height * .07f), size.width * .055f)
-            drawLine(page, Offset(center, top + size.height * .07f), Offset(right, top), size.width * .055f)
-            drawLine(page, Offset(left, bottom), Offset(center, bottom - size.height * .07f), size.width * .055f)
-            drawLine(page, Offset(center, bottom - size.height * .07f), Offset(right, bottom), size.width * .055f)
-            drawCircle(page, radius = size.width * .055f, center = Offset(center, size.height * .18f))
+            drawPath(sheet, paper)
+            drawLine(paper, Offset(foldX, top), Offset(foldX, foldY), size.width * .045f)
+            drawLine(paper, Offset(foldX, foldY), Offset(right, foldY), size.width * .045f)
+            drawLine(ink, Offset(size.width * .35f, size.height * .5f), Offset(size.width * .68f, size.height * .5f), size.width * .045f)
+            drawLine(ink, Offset(size.width * .35f, size.height * .63f), Offset(size.width * .58f, size.height * .63f), size.width * .045f)
+            val sparkle = Path().apply {
+                moveTo(size.width * .79f, size.height * .16f)
+                lineTo(size.width * .79f, size.height * .28f)
+                moveTo(size.width * .73f, size.height * .22f)
+                lineTo(size.width * .85f, size.height * .22f)
+            }
+            drawPath(sparkle, gold, style = Stroke(width = size.width * .05f))
         }
     }
 }
