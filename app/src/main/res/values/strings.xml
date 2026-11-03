@@ -29,6 +29,9 @@
     <string name="new_plan_next_week">Próxima semana</string>
     <string name="new_plan_choose_week">Escolher outra semana</string>
     <string name="new_plan_week_picker_title">Escolha um dia da semana desejada</string>
+    <string name="new_plan_week_change_title">Começar outra semana?</string>
+    <string name="new_plan_week_change_message">O rascunho atual tem conteúdo. Ao trocar de semana, ele será reiniciado.</string>
+    <string name="new_plan_week_change_confirm">Trocar semana</string>
     <string name="new_plan_days_label">Dias da semana</string>
     <string name="new_plan_no_class_status">Sem aula neste dia.</string>
     <string name="new_plan_activity_label">Atividade do dia</string>

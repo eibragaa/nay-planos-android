@@ -21,9 +21,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.role
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import br.com.eibragaa.nayplanos.R
@@ -82,10 +79,7 @@ fun HomeScreen(
             }
 
             Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .semantics { role = Role.Button },
-                onClick = onNewPlan,
+                modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                 ),

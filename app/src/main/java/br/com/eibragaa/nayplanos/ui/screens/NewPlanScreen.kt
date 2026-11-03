@@ -14,6 +14,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -85,6 +86,16 @@ fun NewPlanScreen(
     val cameraDescription = stringResource(R.string.new_plan_take_photo_description)
     var pendingCaptureUri by rememberSaveable { mutableStateOf<String?>(null) }
     var isWeekPickerVisible by rememberSaveable { mutableStateOf(false) }
+    var pendingWeekStart by rememberSaveable { mutableStateOf<String?>(null) }
+    val hasDraftContent = state.days.any {
+        it.activity.text.isNotBlank() || !it.activity.imageReference.isNullOrBlank()
+    }
+
+    fun requestWeekChange(date: LocalDate) {
+        val monday = date.with(java.time.DayOfWeek.MONDAY)
+        if (monday == state.days.first().date) return
+        if (hasDraftContent) pendingWeekStart = monday.toString() else onChangeWeek(monday)
+    }
 
     if (isWeekPickerVisible) {
         val datePickerState = androidx.compose.material3.rememberDatePickerState(
@@ -100,7 +111,7 @@ fun NewPlanScreen(
                     onClick = {
                         datePickerState.selectedDateMillis
                             ?.let { Instant.ofEpochMilli(it).atZone(ZoneOffset.UTC).toLocalDate() }
-                            ?.let { onChangeWeek(it) }
+                            ?.let { requestWeekChange(it) }
                         isWeekPickerVisible = false
                     },
                 ) { Text(stringResource(R.string.new_plan_choose_week)) }
@@ -113,6 +124,27 @@ fun NewPlanScreen(
         ) {
             DatePicker(state = datePickerState, showModeToggle = false)
         }
+    }
+
+    pendingWeekStart?.let { weekStartText ->
+        AlertDialog(
+            onDismissRequest = { pendingWeekStart = null },
+            title = { Text(stringResource(R.string.new_plan_week_change_title)) },
+            text = { Text(stringResource(R.string.new_plan_week_change_message)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onChangeWeek(LocalDate.parse(weekStartText))
+                        pendingWeekStart = null
+                    },
+                ) { Text(stringResource(R.string.new_plan_week_change_confirm)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { pendingWeekStart = null }) {
+                    Text(stringResource(android.R.string.cancel))
+                }
+            },
+        )
     }
 
     val cameraLauncher = rememberLauncherForActivityResult(
@@ -185,8 +217,8 @@ fun NewPlanScreen(
             WeekSelector(
                 weekStart = state.days.first().date,
                 weekEnd = state.days.last().date,
-                onPreviousWeek = { onChangeWeek(state.days.first().date.minusWeeks(1)) },
-                onNextWeek = { onChangeWeek(state.days.first().date.plusWeeks(1)) },
+                onPreviousWeek = { requestWeekChange(state.days.first().date.minusWeeks(1)) },
+                onNextWeek = { requestWeekChange(state.days.first().date.plusWeeks(1)) },
                 onChooseWeek = { isWeekPickerVisible = true },
             )
 
