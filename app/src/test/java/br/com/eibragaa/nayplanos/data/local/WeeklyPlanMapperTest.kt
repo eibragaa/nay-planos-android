@@ -50,10 +50,12 @@ class WeeklyPlanMapperTest {
             imageReference = null,
             isNoClass = true,
         )
-        val restored = WeeklyPlanWithDays(
-            WeeklyPlanEntity(id = 7, weekStart = "2026-11-09"),
-            listOf(storedDay),
-        ).toDomain().days.single()
+        val restored = with(WeeklyPlanMapper) {
+            WeeklyPlanWithDays(
+                WeeklyPlanEntity(id = 7, weekStart = "2026-11-09"),
+                listOf(storedDay),
+            ).toDomain()
+        }.days.single()
 
         assertEquals(date, restored.date)
         assertEquals(true, restored.isNoClass)
