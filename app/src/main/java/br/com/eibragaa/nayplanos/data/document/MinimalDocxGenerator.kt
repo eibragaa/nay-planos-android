@@ -74,6 +74,7 @@ class MinimalDocxGenerator : PlanDocumentGenerator {
             }
             append(tableRow("$weekday, ${formatDate(day.date)}", "$activity\n$status", image, dayIndex + 1))
         }
+        append("</w:tbl>")
         append("<w:sectPr><w:pgSz w:w=\"11906\" w:h=\"16838\"/><w:pgMar w:top=\"1440\" w:right=\"1440\" w:bottom=\"1440\" w:left=\"1440\"/></w:sectPr>")
         append("</w:body></w:document>")
     }
