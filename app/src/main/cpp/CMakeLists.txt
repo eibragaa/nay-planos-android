@@ -32,8 +32,6 @@ file(GLOB VENDOR_HASH_CPP ${llama_SOURCE_DIR}/vendor/hash/*.cpp ${llama_SOURCE_D
 
 add_library(nayllm SHARED
     llm_jni.cpp
-    ${llama_SOURCE_DIR}/src/llama.cpp
-    ${llama_SOURCE_DIR}/src/llama-*.cpp
     ${llama_SOURCE_DIR}/tools/mtmd/mtmd.cpp
     ${llama_SOURCE_DIR}/tools/mtmd/mtmd-helper.cpp
     ${llama_SOURCE_DIR}/tools/mtmd/clip.cpp
@@ -41,6 +39,8 @@ add_library(nayllm SHARED
     ${COMMON_CPP}
     ${VENDOR_HASH_CPP}
 )
+
+target_link_libraries(nayllm PRIVATE llama)
 
 target_link_libraries(nayllm PRIVATE ggml android log)
 target_include_directories(nayllm PRIVATE
