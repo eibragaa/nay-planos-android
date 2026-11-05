@@ -24,17 +24,17 @@ set(GGML_CPU_ARM_ARCH "armv8.6-a+dotprod+i8mm" CACHE STRING "" FORCE)
 
 FetchContent_MakeAvailable(llama)
 
-# Compila a JNI mais os fontes da mtmd e common/ em um unico alvo, linkando
-# contra ggml e contra o alvo 'llama' (que carrega llama.cpp e os samplers).
+# Compila a JNI mais os fontes da mtmd e common/ em um unico alvo e linka
+# contra o alvo 'llama' estatico. Os audio preprocessors (vtables) estao
+# em tools/mtmd e sao cobertos pelo GLOB de mtmd.cpp? Nao: sao arquivos
+# separados. Inclui-os explicitamente via GLOB de tools/mtmd/*.cpp.
+file(GLOB MTMD_CPP ${llama_SOURCE_DIR}/tools/mtmd/*.cpp)
 file(GLOB COMMON_CPP ${llama_SOURCE_DIR}/common/*.cpp ${llama_SOURCE_DIR}/common/*.c)
 file(GLOB VENDOR_HASH_CPP ${llama_SOURCE_DIR}/vendor/hash/*.cpp ${llama_SOURCE_DIR}/vendor/hash/*.c ${llama_SOURCE_DIR}/vendor/hash/sha256/*.c)
 
 add_library(nayllm SHARED
     llm_jni.cpp
-    ${llama_SOURCE_DIR}/tools/mtmd/mtmd.cpp
-    ${llama_SOURCE_DIR}/tools/mtmd/mtmd-helper.cpp
-    ${llama_SOURCE_DIR}/tools/mtmd/clip.cpp
-    ${llama_SOURCE_DIR}/tools/mtmd/mtmd-image.cpp
+    ${MTMD_CPP}
     ${COMMON_CPP}
     ${VENDOR_HASH_CPP}
 )
