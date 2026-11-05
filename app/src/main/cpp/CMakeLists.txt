@@ -28,6 +28,7 @@ FetchContent_MakeAvailable(llama)
 # o alvo 'llama' (que contem llama.cpp + common/) e ggml. Os simbolos da
 # mtmd (mtmd_context_params_default etc.) vem dos .cpp compilados aqui.
 file(GLOB_RECURSE MTMD_CPP ${llama_SOURCE_DIR}/tools/mtmd/*.cpp)
+file(GLOB VENDOR_HASH_CPP ${llama_SOURCE_DIR}/vendor/hash/*.cpp ${llama_SOURCE_DIR}/vendor/hash/*.c ${llama_SOURCE_DIR}/vendor/hash/sha256/*.c)
 list(REMOVE_ITEM MTMD_CPP
     ${llama_SOURCE_DIR}/tools/mtmd/debug/mtmd-debug.cpp
     ${llama_SOURCE_DIR}/tools/mtmd/deprecation-warning.cpp
@@ -36,6 +37,7 @@ list(REMOVE_ITEM MTMD_CPP
 add_library(nayllm SHARED
     llm_jni.cpp
     ${MTMD_CPP}
+    ${VENDOR_HASH_CPP}
 )
 
 target_link_libraries(nayllm PRIVATE llama ggml android log)
@@ -45,4 +47,5 @@ target_include_directories(nayllm PRIVATE
     ${llama_SOURCE_DIR}/tools/mtmd
     ${llama_SOURCE_DIR}/common
     ${llama_SOURCE_DIR}/vendor)
+    ${llama_SOURCE_DIR}/vendor/hash)
 target_compile_options(nayllm PRIVATE -O3 -fvisibility=hidden)
