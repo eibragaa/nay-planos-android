@@ -24,8 +24,8 @@ set(GGML_CPU_ARM_ARCH "armv8.6-a+dotprod+i8mm" CACHE STRING "" FORCE)
 
 FetchContent_MakeAvailable(llama)
 
-# Compila a JNI mais os fontes da mtmd e common/ em um unico alvo, linkando
-# contra ggml. O alvo 'llama' e evitado (traz httplib/llama_build_info).
+# Compila a JNI mais os fontes da mtmd e common/ em um unico alvo e linka
+# contra ggml + llama. O alvo 'llama' carrega os symbols de llama.cpp.
 file(GLOB MTMD_CPP ${llama_SOURCE_DIR}/tools/mtmd/*.cpp)
 list(REMOVE_ITEM MTMD_CPP
     ${llama_SOURCE_DIR}/tools/mtmd/debug/mtmd-debug.cpp
@@ -51,4 +51,4 @@ target_include_directories(nayllm PRIVATE
     ${llama_SOURCE_DIR}/vendor/hash/sha256
 )
 target_compile_options(nayllm PRIVATE -O3 -fvisibility=hidden)
-target_link_libraries(nayllm PRIVATE ggml android log)
+target_link_libraries(nayllm PRIVATE llama ggml android log)
