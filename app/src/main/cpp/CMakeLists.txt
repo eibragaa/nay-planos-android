@@ -24,8 +24,10 @@ set(GGML_CPU_ARM_ARCH "armv8.6-a+dotprod+i8mm" CACHE STRING "" FORCE)
 
 FetchContent_MakeAvailable(llama)
 
-# Compila a JNI mais os fontes da mtmd e common/ em um unico alvo, linkando
-# contra ggml e contra o alvo 'llama' (que contem llama.cpp).
+# Compila todos os fontes do llama.cpp + mtmd + common + vendor em um unico
+# .so, linkando apenas contra ggml. Evita depender do alvo 'llama' (que traz
+# httplib/llama_build_info) e do alvo 'mtmd' (inexistente).
+file(GLOB_RECURSE LLAMA_CPP ${llama_SOURCE_DIR}/src/*.cpp)
 file(GLOB_RECURSE MTMD_CPP ${llama_SOURCE_DIR}/tools/mtmd/*.cpp)
 list(REMOVE_ITEM MTMD_CPP
     ${llama_SOURCE_DIR}/tools/mtmd/debug/mtmd-debug.cpp
@@ -36,6 +38,7 @@ file(GLOB VENDOR_HASH_CPP ${llama_SOURCE_DIR}/vendor/hash/*.cpp ${llama_SOURCE_D
 
 add_library(nayllm SHARED
     llm_jni.cpp
+    ${LLAMA_CPP}
     ${MTMD_CPP}
     ${COMMON_CPP}
     ${VENDOR_HASH_CPP}
@@ -44,6 +47,7 @@ add_library(nayllm SHARED
 target_include_directories(nayllm PRIVATE
     ${llama_SOURCE_DIR}/include
     ${llama_SOURCE_DIR}/ggml/include
+    ${llama_SOURCE_DIR}/src
     ${llama_SOURCE_DIR}/tools/mtmd
     ${llama_SOURCE_DIR}/common
     ${llama_SOURCE_DIR}/vendor
@@ -52,4 +56,4 @@ target_include_directories(nayllm PRIVATE
     ${llama_SOURCE_DIR}/vendor/hash/rotate-bits
 )
 target_compile_options(nayllm PRIVATE -O3 -fvisibility=hidden)
-target_link_libraries(nayllm PRIVATE llama ggml android log)
+target_link_libraries(nayllm PRIVATE ggml android log)
