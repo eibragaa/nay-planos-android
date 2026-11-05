@@ -49,4 +49,4 @@ target_include_directories(nayllm PRIVATE
     ${llama_SOURCE_DIR}/vendor/hash/sha256
 )
 target_compile_options(nayllm PRIVATE -O3 -fvisibility=hidden)
-target_link_libraries(nayllm PRIVATE ggml android log)
+target_link_libraries(nayllm PRIVATE llama ggml android log)
