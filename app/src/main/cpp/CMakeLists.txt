@@ -30,7 +30,7 @@ FetchContent_MakeAvailable(llama)
 
 add_library(nayllm SHARED llm_jni.cpp)
 target_link_libraries(nayllm PRIVATE llama ggml)
-target_sources(nayllm PRIVATE ${llama_SOURCE_DIR}/tools/mtmd/mtmd.cpp ${llama_SOURCE_DIR}/tools/mtmd/mtmd-helper.cpp)
+target_sources(nayllm PRIVATE ${llama_SOURCE_DIR}/tools/mtmd/mtmd.cpp ${llama_SOURCE_DIR}/tools/mtmd/mtmd-helper.cpp ${llama_SOURCE_DIR}/tools/mtmd/clip.cpp ${llama_SOURCE_DIR}/tools/mtmd/mtmd-image.cpp ${llama_SOURCE_DIR}/tools/common/hash.cpp ${llama_SOURCE_DIR}/tools/common/log.cpp)
 target_include_directories(nayllm PRIVATE
     ${llama_SOURCE_DIR}/include
     ${llama_SOURCE_DIR}/ggml/include
