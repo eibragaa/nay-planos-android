@@ -30,7 +30,7 @@ jobs:
           accept-android-sdk-licenses: true
 
       - name: Install NDK and CMake for the native LLM bridge
-        run: sdkmanager "cmake;3.31.6" "ndk;27.2.12479018"
+        run: sdkmanager "cmake;3.31.6" "ndk;26.1.10909125"
 
       - name: Run JVM tests
         run: ./gradlew testDebugUnitTest --no-daemon
