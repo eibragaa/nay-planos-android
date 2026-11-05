@@ -24,12 +24,10 @@ set(GGML_CPU_ARM_ARCH "armv8.6-a+dotprod+i8mm" CACHE STRING "" FORCE)
 
 FetchContent_MakeAvailable(llama)
 
-# A mtmd é uma ferramenta do llama.cpp e não é exposta como alvo CMake.
-# A ponte JNI usa apenas a API de visão da mtmd, mas ela depende de symbols
-# espalhados por common/, tools/common e vendor/. Compilar esses .cpp junto
-# evita o link a bibliotecas inexistentes.
+# A mtmd não é alvo CMake e depende de símbolos de common/ e vendor/.
+# Compila os .cpp/.c necessários no próprio alvo e linka apenas contra ggml.
 file(GLOB COMMON_CPP ${llama_SOURCE_DIR}/common/*.cpp ${llama_SOURCE_DIR}/common/*.c)
-file(GLOB VENDOR_HASH_CPP ${llama_SOURCE_DIR}/vendor/hash/*.cpp)
+file(GLOB VENDOR_HASH_CPP ${llama_SOURCE_DIR}/vendor/hash/*.cpp ${llama_SOURCE_DIR}/vendor/hash/*.c)
 
 add_library(nayllm SHARED
     llm_jni.cpp
@@ -41,8 +39,6 @@ add_library(nayllm SHARED
     ${VENDOR_HASH_CPP}
 )
 
-target_link_libraries(nayllm PRIVATE llama ggml android log)
-set_target_properties(nayllm PROPERTIES LINK_OPTIONS "-Wl,--allow-shlib-undefined")
 target_include_directories(nayllm PRIVATE
     ${llama_SOURCE_DIR}/include
     ${llama_SOURCE_DIR}/ggml/include
@@ -52,3 +48,4 @@ target_include_directories(nayllm PRIVATE
     ${llama_SOURCE_DIR}/vendor/hash
 )
 target_compile_options(nayllm PRIVATE -O3 -fvisibility=hidden)
+target_link_libraries(nayllm PRIVATE ggml android log)
