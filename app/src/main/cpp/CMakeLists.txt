@@ -48,6 +48,7 @@ target_include_directories(nayllm PRIVATE
     ${llama_SOURCE_DIR}/include
     ${llama_SOURCE_DIR}/ggml/include
     ${llama_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_BINARY_DIR}/src
     ${llama_SOURCE_DIR}/tools/mtmd
     ${llama_SOURCE_DIR}/common
     ${llama_SOURCE_DIR}/vendor
