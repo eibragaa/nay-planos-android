@@ -26,7 +26,11 @@ FetchContent_MakeAvailable(llama)
 
 # Compila a JNI e linka contra o alvo 'llama' completo, que ja contem
 # llama.cpp, common/, tools/mtmd (clip, audio) e os symbols necessarios.
-add_library(nayllm SHARED llm_jni.cpp)
+add_library(nayllm SHARED llm_jni.cpp
+    ${llama_SOURCE_DIR}/tools/mtmd/mtmd.cpp
+    ${llama_SOURCE_DIR}/tools/mtmd/mtmd-helper.cpp
+    ${llama_SOURCE_DIR}/tools/mtmd/clip.cpp
+    ${llama_SOURCE_DIR}/tools/mtmd/mtmd-image.cpp)
 target_link_libraries(nayllm PRIVATE llama)
 target_include_directories(nayllm PRIVATE
     ${llama_SOURCE_DIR}/include
