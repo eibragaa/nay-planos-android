@@ -30,7 +30,13 @@ import br.com.eibragaa.nayplanos.domain.editor.WeeklyPlanEditorReducer
 import br.com.eibragaa.nayplanos.domain.editor.WeeklyPlanEditorState
 import br.com.eibragaa.nayplanos.domain.document.DocumentImage
 import br.com.eibragaa.nayplanos.domain.document.PlanDocumentGenerator
+import br.com.eibragaa.nayplanos.data.llm.LocalActivityGenerator
+import br.com.eibragaa.nayplanos.data.model.ModelSetupController
+import br.com.eibragaa.nayplanos.domain.device.LocalModelCatalog
+import br.com.eibragaa.nayplanos.domain.generation.ActivitySuggestion
+import br.com.eibragaa.nayplanos.domain.generation.ActivitySuggestionPolicy
 import br.com.eibragaa.nayplanos.domain.image.ImageStore
+import br.com.eibragaa.nayplanos.ui.screens.ModelSettingsScreen
 import br.com.eibragaa.nayplanos.domain.model.PlanDay
 import br.com.eibragaa.nayplanos.domain.model.WeeklyPlan
 import br.com.eibragaa.nayplanos.domain.repository.WeeklyPlanRepository
@@ -38,7 +44,6 @@ import br.com.eibragaa.nayplanos.domain.validation.WeeklyPlanValidator
 import br.com.eibragaa.nayplanos.ui.screens.HomeScreen
 import br.com.eibragaa.nayplanos.ui.screens.HistoryScreen
 import br.com.eibragaa.nayplanos.ui.screens.NewPlanScreen
-import br.com.eibragaa.nayplanos.ui.screens.PlaceholderScreen
 import java.time.DayOfWeek
 import java.time.LocalDate
 import kotlinx.coroutines.CancellationException
@@ -55,6 +60,8 @@ fun NayPlanosApp(
     onShareDocument: suspend (fileName: String, bytes: ByteArray) -> Unit,
     onPrepareCameraCapture: () -> Uri?,
     onCleanupCameraCapture: (Uri) -> Unit,
+    modelSetup: ModelSetupController,
+    activityGenerator: LocalActivityGenerator,
 ) {
     var selectedDestinationName by rememberSaveable { mutableStateOf(AppDestination.HOME.name) }
     val today = remember { LocalDate.now() }
@@ -90,6 +97,68 @@ fun NayPlanosApp(
     val removeImageErrorMessage = stringResource(R.string.new_plan_image_remove_error)
     val exportSuccessMessage = stringResource(R.string.new_plan_export_success)
     val exportErrorMessage = stringResource(R.string.new_plan_export_error)
+    val suggestBusyMessage = stringResource(R.string.new_plan_suggest_busy)
+    val suggestNoImageMessage = stringResource(R.string.new_plan_suggest_no_image)
+    val suggestNoModelMessage = stringResource(R.string.new_plan_suggest_no_model)
+    val suggestErrorMessage = stringResource(R.string.new_plan_suggest_error)
+    val suggestDoneMessage = stringResource(R.string.new_plan_suggest_done)
+    val modelState by modelSetup.state.collectAsState()
+    var isSuggesting by remember { mutableStateOf(false) }
+    LaunchedEffect(modelSetup) { modelSetup.refresh() }
+
+    fun suggestActivity() {
+        if (isSuggesting || isImageOperationInProgress || isExporting) {
+            coroutineScope.launch { snackbarHostState.showSnackbar(suggestBusyMessage) }
+            return
+        }
+        val targetDate = editorState.selectedDay.date
+        val reference = editorState.selectedDay.activity.imageReference
+        if (reference == null) {
+            coroutineScope.launch { snackbarHostState.showSnackbar(suggestNoImageMessage) }
+            return
+        }
+        val modelId = modelState.selectedModelId
+        val model = LocalModelCatalog.models.firstOrNull { it.id == modelId }
+        if (model == null || modelId !in modelState.installedModelIds) {
+            coroutineScope.launch { snackbarHostState.showSnackbar(suggestNoModelMessage) }
+            return
+        }
+        isSuggesting = true
+        coroutineScope.launch {
+            try {
+                val thumbnail = imageStore.readThumbnail(reference)
+                    ?: throw IllegalStateException("Miniatura indisponível.")
+                val text = activityGenerator.describe(model, thumbnail.jpegBytes)
+                val suggestion = ActivitySuggestion(
+                    schemaVersion = ActivitySuggestionPolicy.SUPPORTED_SCHEMA_VERSION,
+                    activity = text,
+                    objectives = emptyList(),
+                )
+                if (ActivitySuggestionPolicy.validate(suggestion).isNotEmpty()) {
+                    throw IllegalStateException("Resposta fora do contrato.")
+                }
+                val currentIndex = editorState.days.indexOfFirst { it.date == targetDate }
+                if (currentIndex >= 0 &&
+                    editorState.days[currentIndex].activity.imageReference == reference
+                ) {
+                    val updatedDays = editorState.days.toMutableList()
+                    updatedDays[currentIndex] = updatedDays[currentIndex].copy(
+                        activity = updatedDays[currentIndex].activity.copy(
+                            text = ActivitySuggestionPolicy.normalizedActivity(suggestion),
+                        ),
+                    )
+                    editorState = editorState.copy(days = updatedDays)
+                    snackbarHostState.showSnackbar(suggestDoneMessage)
+                }
+            } catch (cancellation: CancellationException) {
+                throw cancellation
+            } catch (_: Exception) {
+                snackbarHostState.showSnackbar(suggestErrorMessage)
+            } finally {
+                isSuggesting = false
+            }
+        }
+    }
     val selectedDestination = AppDestination.entries.firstOrNull {
         it.name == selectedDestinationName
     } ?: AppDestination.HOME
@@ -314,6 +383,8 @@ fun NayPlanosApp(
                             )
                         }
                     },
+                    onSuggestActivity = { suggestActivity() },
+                    isSuggesting = isSuggesting,
                     onRemoveImageReference = {
                         val stateAtRemovalStart = editorState
                         val targetDay = stateAtRemovalStart.selectedDay
@@ -424,9 +495,12 @@ fun NayPlanosApp(
                     },
                 )
                 AppDestination.HISTORY -> HistoryScreen(plans = savedPlans)
-                AppDestination.SETTINGS -> PlaceholderScreen(
-                    title = stringResource(selectedDestination.titleRes),
-                    description = stringResource(selectedDestination.descriptionRes),
+                AppDestination.SETTINGS -> ModelSettingsScreen(
+                    state = modelState,
+                    onSelect = modelSetup::select,
+                    onDownload = modelSetup::startDownload,
+                    onCancelDownload = modelSetup::cancelDownload,
+                    onDelete = modelSetup::delete,
                 )
             }
         }

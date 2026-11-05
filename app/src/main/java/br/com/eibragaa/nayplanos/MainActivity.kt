@@ -7,10 +7,17 @@ import androidx.core.content.FileProvider
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.room.Room
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import br.com.eibragaa.nayplanos.data.document.MinimalDocxGenerator
 import br.com.eibragaa.nayplanos.data.image.AppImageStore
+import br.com.eibragaa.nayplanos.data.llm.LocalActivityGenerator
+import br.com.eibragaa.nayplanos.data.model.ModelInstallStore
+import br.com.eibragaa.nayplanos.data.model.ModelSetupController
 import br.com.eibragaa.nayplanos.data.local.NayPlanosDatabase
 import br.com.eibragaa.nayplanos.data.repository.RoomWeeklyPlanRepository
 import br.com.eibragaa.nayplanos.ui.design.NayPlanosTheme
@@ -24,6 +31,9 @@ private const val DOCX_MIME_TYPE =
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
 
 class MainActivity : ComponentActivity() {
+    private val modelScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+    private var activityGenerator: LocalActivityGenerator? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         cleanupStaleCameraCaptures()
@@ -35,6 +45,13 @@ class MainActivity : ComponentActivity() {
         val repository = RoomWeeklyPlanRepository(database.weeklyPlanDao())
         val imageStore = AppImageStore(applicationContext)
         val documentGenerator = MinimalDocxGenerator()
+        val modelStore = ModelInstallStore(applicationContext)
+        val modelSetup = ModelSetupController(applicationContext, modelScope, modelStore)
+        val generator = LocalActivityGenerator(
+            store = modelStore,
+            threads = minOf(4, Runtime.getRuntime().availableProcessors()),
+        )
+        activityGenerator = generator
         setContent {
             NayPlanosTheme {
                 NayPlanosApp(
@@ -44,9 +61,22 @@ class MainActivity : ComponentActivity() {
                     onShareDocument = ::shareDocument,
                     onPrepareCameraCapture = ::prepareCameraCapture,
                     onCleanupCameraCapture = ::cleanupCameraCapture,
+                    modelSetup = modelSetup,
+                    activityGenerator = generator,
                 )
             }
         }
+    }
+
+    override fun onDestroy() {
+        // Libera a memória nativa do modelo fora do escopo da activity, que está sendo destruída.
+        val generator = activityGenerator
+        activityGenerator = null
+        if (generator != null) {
+            CoroutineScope(Dispatchers.IO).launch { generator.release() }
+        }
+        modelScope.cancel()
+        super.onDestroy()
     }
 
     private fun prepareCameraCapture(): Uri? {
