@@ -24,16 +24,27 @@ set(GGML_CPU_ARM_ARCH "armv8.6-a+dotprod+i8mm" CACHE STRING "" FORCE)
 
 FetchContent_MakeAvailable(llama)
 
-# O alvo 'llama' do llama.cpp e uma biblioteca estatica completa e carrega
-# llama.cpp + common/ + tools/mtmd (clip, audio preprocessors) + symbols do
-# httplib. A JNI apenas adiciona llm_jni.cpp.
-add_library(nayllm SHARED llm_jni.cpp)
-target_link_libraries(nayllm PRIVATE llama)
+file(GLOB COMMON_CPP ${llama_SOURCE_DIR}/common/*.cpp ${llama_SOURCE_DIR}/common/*.c)
+file(GLOB VENDOR_HASH_CPP ${llama_SOURCE_DIR}/vendor/hash/*.cpp ${llama_SOURCE_DIR}/vendor/hash/*.c ${llama_SOURCE_DIR}/vendor/hash/sha256/*.c)
+
+add_library(nayllm SHARED
+    llm_jni.cpp
+    ${llama_SOURCE_DIR}/tools/mtmd/mtmd.cpp
+    ${llama_SOURCE_DIR}/tools/mtmd/mtmd-helper.cpp
+    ${llama_SOURCE_DIR}/tools/mtmd/clip.cpp
+    ${llama_SOURCE_DIR}/tools/mtmd/mtmd-image.cpp
+    ${COMMON_CPP}
+    ${VENDOR_HASH_CPP}
+)
+
+target_link_libraries(nayllm PRIVATE ggml android log)
 target_include_directories(nayllm PRIVATE
     ${llama_SOURCE_DIR}/include
     ${llama_SOURCE_DIR}/ggml/include
     ${llama_SOURCE_DIR}/tools/mtmd
     ${llama_SOURCE_DIR}/common
+    ${llama_SOURCE_DIR}/vendor
+    ${llama_SOURCE_DIR}/vendor/hash
+    ${llama_SOURCE_DIR}/vendor/hash/sha256
 )
 target_compile_options(nayllm PRIVATE -O3 -fvisibility=hidden)
-target_link_libraries(nayllm PRIVATE android log)
