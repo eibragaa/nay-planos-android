@@ -48,4 +48,5 @@ target_include_directories(nayllm PRIVATE
     ${llama_SOURCE_DIR}/common
     ${llama_SOURCE_DIR}/vendor)
     ${llama_SOURCE_DIR}/vendor/hash)
+)
 target_compile_options(nayllm PRIVATE -O3 -fvisibility=hidden)
