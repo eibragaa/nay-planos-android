@@ -126,7 +126,7 @@ fun ModelSettingsScreen(
                     onClick = { onDelete(selected.id) },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .semantics { contentDescription = stringResource(R.string.model_delete_description) },
+                        .semantics { contentDescription = "Remover o modelo instalado e liberar espaço" },
                 ) {
                     Text(stringResource(R.string.model_delete))
                 }
@@ -135,7 +135,7 @@ fun ModelSettingsScreen(
                     onClick = onDownload,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .semantics { contentDescription = stringResource(R.string.model_download_description) },
+                        .semantics { contentDescription = "Baixar o modelo selecionado para este aparelho" },
                 ) {
                     Text(stringResource(R.string.model_download))
                 }
