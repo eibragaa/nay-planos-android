@@ -25,8 +25,7 @@ set(GGML_CPU_ARM_ARCH "armv8.6-a+dotprod+i8mm" CACHE STRING "" FORCE)
 FetchContent_MakeAvailable(llama)
 
 # Compila a JNI mais os fontes da mtmd e common/ em um unico alvo, linkando
-# apenas contra ggml. O alvo 'llama' e evitado por trazer httplib e
-# llama_build_info, que nao existem no NDK.
+# contra ggml e contra o alvo 'llama' (que carrega llama.cpp e os samplers).
 file(GLOB COMMON_CPP ${llama_SOURCE_DIR}/common/*.cpp ${llama_SOURCE_DIR}/common/*.c)
 file(GLOB VENDOR_HASH_CPP ${llama_SOURCE_DIR}/vendor/hash/*.cpp ${llama_SOURCE_DIR}/vendor/hash/*.c ${llama_SOURCE_DIR}/vendor/hash/sha256/*.c)
 
@@ -40,6 +39,7 @@ add_library(nayllm SHARED
     ${VENDOR_HASH_CPP}
 )
 
+target_link_libraries(nayllm PRIVATE llama ggml android log)
 target_include_directories(nayllm PRIVATE
     ${llama_SOURCE_DIR}/include
     ${llama_SOURCE_DIR}/ggml/include
@@ -50,4 +50,3 @@ target_include_directories(nayllm PRIVATE
     ${llama_SOURCE_DIR}/vendor/hash/sha256
 )
 target_compile_options(nayllm PRIVATE -O3 -fvisibility=hidden)
-target_link_libraries(nayllm PRIVATE ggml android log)
