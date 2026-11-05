@@ -24,21 +24,30 @@ set(GGML_CPU_ARM_ARCH "armv8.6-a+dotprod+i8mm" CACHE STRING "" FORCE)
 
 FetchContent_MakeAvailable(llama)
 
-# O alvo 'llama' do llama.cpp inclui llama.cpp + common/ + tools/mtmd como
-# biblioteca estatica. A JNI apenas adiciona llm_jni.cpp e compila contra
-# esse alvo, herdando todos os symbols.
-add_library(nayllm SHARED llm_jni.cpp
+# Compila a JNI mais todos os fontes da mtmd e common/ em um unico alvo.
+# A mtmd nao e exposta como biblioteca CMake e depende de simbolos de
+# common/, tools/common e vendor/. Empacotar tudo em libnayllm.so evita
+# undefined symbols no link.
+file(GLOB COMMON_CPP ${llama_SOURCE_DIR}/common/*.cpp ${llama_SOURCE_DIR}/common/*.c)
+file(GLOB VENDOR_HASH_CPP ${llama_SOURCE_DIR}/vendor/hash/*.cpp ${llama_SOURCE_DIR}/vendor/hash/*.c)
+
+add_library(nayllm SHARED
+    llm_jni.cpp
     ${llama_SOURCE_DIR}/tools/mtmd/mtmd.cpp
     ${llama_SOURCE_DIR}/tools/mtmd/mtmd-helper.cpp
     ${llama_SOURCE_DIR}/tools/mtmd/clip.cpp
-    ${llama_SOURCE_DIR}/tools/mtmd/mtmd-image.cpp)
-target_link_libraries(nayllm PRIVATE llama)
+    ${llama_SOURCE_DIR}/tools/mtmd/mtmd-image.cpp
+    ${COMMON_CPP}
+    ${VENDOR_HASH_CPP}
+)
+
 target_include_directories(nayllm PRIVATE
     ${llama_SOURCE_DIR}/include
     ${llama_SOURCE_DIR}/ggml/include
     ${llama_SOURCE_DIR}/tools/mtmd
     ${llama_SOURCE_DIR}/common
     ${llama_SOURCE_DIR}/vendor
+    ${llama_SOURCE_DIR}/vendor/hash
 )
 target_compile_options(nayllm PRIVATE -O3 -fvisibility=hidden)
-target_link_libraries(nayllm PRIVATE android log)
+target_link_libraries(nayllm PRIVATE ggml android log)
