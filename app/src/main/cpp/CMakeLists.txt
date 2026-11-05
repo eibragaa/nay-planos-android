@@ -27,7 +27,11 @@ FetchContent_MakeAvailable(llama)
 # O alvo 'llama' do llama.cpp inclui llama.cpp + common/ + tools/mtmd como
 # biblioteca estatica. A JNI apenas adiciona llm_jni.cpp e compila contra
 # esse alvo, herdando todos os symbols.
-add_library(nayllm SHARED llm_jni.cpp)
+add_library(nayllm SHARED llm_jni.cpp
+    ${llama_SOURCE_DIR}/tools/mtmd/mtmd.cpp
+    ${llama_SOURCE_DIR}/tools/mtmd/mtmd-helper.cpp
+    ${llama_SOURCE_DIR}/tools/mtmd/clip.cpp
+    ${llama_SOURCE_DIR}/tools/mtmd/mtmd-image.cpp)
 target_link_libraries(nayllm PRIVATE llama)
 target_include_directories(nayllm PRIVATE
     ${llama_SOURCE_DIR}/include
