@@ -29,7 +29,7 @@ set(GGML_CPU_ARM_ARCH "armv8.6-a+dotprod+i8mm" CACHE STRING "" FORCE)
 FetchContent_MakeAvailable(llama)
 
 add_library(nayllm SHARED llm_jni.cpp)
-target_link_libraries(nayllm PRIVATE llama mtmd ggml)
+target_link_libraries(nayllm PRIVATE llama ggml)
 target_sources(nayllm PRIVATE ${llama_SOURCE_DIR}/tools/mtmd/mtmd.cpp ${llama_SOURCE_DIR}/tools/mtmd/mtmd-helper.cpp)
 target_include_directories(nayllm PRIVATE
     ${llama_SOURCE_DIR}/include
