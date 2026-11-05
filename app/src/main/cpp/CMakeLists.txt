@@ -44,5 +44,5 @@ target_include_directories(nayllm PRIVATE
     ${llama_SOURCE_DIR}/ggml/include
     ${llama_SOURCE_DIR}/tools/mtmd
     ${llama_SOURCE_DIR}/common
-)
+    ${llama_SOURCE_DIR}/vendor)
 target_compile_options(nayllm PRIVATE -O3 -fvisibility=hidden)
