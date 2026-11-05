@@ -28,7 +28,7 @@ FetchContent_MakeAvailable(llama)
 # contem llama.cpp, common/, tools/mtmd (clip, audio) e os symbols. Adiciona
 # apenas llm_jni.cpp; os outros .cpp do mtmd/common ja estao no alvo llama.
 add_library(nayllm SHARED llm_jni.cpp)
-target_link_libraries(nayllm PRIVATE llama mtmd)
+target_link_libraries(nayllm PRIVATE llama)
 target_include_directories(nayllm PRIVATE
     ${llama_SOURCE_DIR}/include
     ${llama_SOURCE_DIR}/ggml/include
