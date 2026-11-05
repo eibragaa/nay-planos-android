@@ -42,6 +42,7 @@ add_library(nayllm SHARED
 )
 
 target_link_libraries(nayllm PRIVATE llama ggml android log)
+set_target_properties(nayllm PROPERTIES LINK_OPTIONS "-Wl,--allow-shlib-undefined")
 target_include_directories(nayllm PRIVATE
     ${llama_SOURCE_DIR}/include
     ${llama_SOURCE_DIR}/ggml/include
