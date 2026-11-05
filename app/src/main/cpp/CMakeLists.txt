@@ -29,7 +29,7 @@ FetchContent_MakeAvailable(llama)
 # common/, tools/common e vendor/. Empacotar tudo em libnayllm.so evita
 # undefined symbols no link.
 file(GLOB COMMON_CPP ${llama_SOURCE_DIR}/common/*.cpp ${llama_SOURCE_DIR}/common/*.c)
-file(GLOB VENDOR_HASH_CPP ${llama_SOURCE_DIR}/vendor/hash/*.cpp ${llama_SOURCE_DIR}/vendor/hash/*.c)
+file(GLOB VENDOR_HASH_CPP ${llama_SOURCE_DIR}/vendor/hash/*.cpp ${llama_SOURCE_DIR}/vendor/hash/*.c ${llama_SOURCE_DIR}/vendor/hash/sha256/*.c)
 
 add_library(nayllm SHARED
     llm_jni.cpp
@@ -48,6 +48,7 @@ target_include_directories(nayllm PRIVATE
     ${llama_SOURCE_DIR}/common
     ${llama_SOURCE_DIR}/vendor
     ${llama_SOURCE_DIR}/vendor/hash
+    ${llama_SOURCE_DIR}/vendor/hash/sha256
 )
 target_compile_options(nayllm PRIVATE -O3 -fvisibility=hidden)
 target_link_libraries(nayllm PRIVATE ggml android log)
