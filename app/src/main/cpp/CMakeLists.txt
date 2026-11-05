@@ -34,7 +34,7 @@ target_sources(nayllm PRIVATE
     ${llama_SOURCE_DIR}/tools/mtmd/clip.cpp
     ${llama_SOURCE_DIR}/tools/mtmd/mtmd-image.cpp
 )
-target_link_libraries(nayllm PRIVATE llama mtmd ggml)
+target_link_libraries(nayllm PRIVATE llama ggml)
 target_include_directories(nayllm PRIVATE
     ${llama_SOURCE_DIR}/include
     ${llama_SOURCE_DIR}/ggml/include
