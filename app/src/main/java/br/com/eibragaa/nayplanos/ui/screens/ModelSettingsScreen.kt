@@ -66,9 +66,9 @@ fun ModelSettingsScreen(
             text = stringResource(
                 R.string.model_device_summary,
                 profile.cpuAbi,
-                profile.totalRamMb / 1024,
+                (profile.totalRamMb / 1024).toInt(),
                 profile.cpuCores,
-                profile.freeStorageMb / 1024,
+                (profile.freeStorageMb / 1024).toInt(),
             ),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
