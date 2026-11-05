@@ -37,7 +37,8 @@ add_library(nayllm SHARED llm_jni.cpp
     ${llama_SOURCE_DIR}/common/sampling.cpp
     ${llama_SOURCE_DIR}/common/unicode.cpp
     ${llama_SOURCE_DIR}/vendor/hash/hash.cpp
-    ${llama_SOURCE_DIR}/vendor/hash/sha256/sha256.c)
+    ${llama_SOURCE_DIR}/vendor/hash/sha256
+    ${llama_SOURCE_DIR}/vendor/hash/rotate-bits/sha256.c)
 target_link_libraries(nayllm PRIVATE llama)
 target_include_directories(nayllm PRIVATE
     ${llama_SOURCE_DIR}/include
