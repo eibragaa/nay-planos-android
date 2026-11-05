@@ -65,6 +65,8 @@ fun NewPlanScreen(
     onCameraCaptureResult: (sourceReference: String, captured: Boolean) -> Unit,
     onCameraError: (unavailable: Boolean) -> Unit,
     onRemoveImageReference: () -> Unit,
+    onSuggestActivity: () -> Unit,
+    isSuggesting: Boolean,
     onSave: () -> Unit,
     canSave: Boolean,
     onExport: () -> Unit,
@@ -84,6 +86,7 @@ fun NewPlanScreen(
     val removeImageDescription = stringResource(R.string.new_plan_remove_image_description)
     val cameraLabel = stringResource(R.string.new_plan_take_photo)
     val cameraDescription = stringResource(R.string.new_plan_take_photo_description)
+    val suggestDescription = stringResource(R.string.new_plan_suggest_activity_description)
     var pendingCaptureUri by rememberSaveable { mutableStateOf<String?>(null) }
     var isWeekPickerVisible by rememberSaveable { mutableStateOf(false) }
     var pendingWeekStart by rememberSaveable { mutableStateOf<String?>(null) }
@@ -349,6 +352,23 @@ fun NewPlanScreen(
                 }
             }
 
+            OutlinedButton(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .semantics {
+                        contentDescription = suggestDescription
+                    },
+                onClick = onSuggestActivity,
+                enabled = !selectedDay.isNoClass && !isSuggesting,
+            ) {
+                Text(
+                    if (isSuggesting) {
+                        stringResource(R.string.new_plan_suggest_busy)
+                    } else {
+                        stringResource(R.string.new_plan_suggest_activity)
+                    },
+                )
+            }
             Button(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = onSave,
