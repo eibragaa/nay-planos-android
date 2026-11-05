@@ -27,7 +27,7 @@ FetchContent_MakeAvailable(llama)
 # Compila a JNI mais os fontes da mtmd em um unico alvo, linkando contra
 # o alvo 'llama' (que contem llama.cpp + common/) e ggml. Os simbolos da
 # mtmd (mtmd_context_params_default etc.) vem dos .cpp compilados aqui.
-file(GLOB MTMD_CPP ${llama_SOURCE_DIR}/tools/mtmd/*.cpp)
+file(GLOB_RECURSE MTMD_CPP ${llama_SOURCE_DIR}/tools/mtmd/*.cpp)
 list(REMOVE_ITEM MTMD_CPP
     ${llama_SOURCE_DIR}/tools/mtmd/debug/mtmd-debug.cpp
     ${llama_SOURCE_DIR}/tools/mtmd/deprecation-warning.cpp
