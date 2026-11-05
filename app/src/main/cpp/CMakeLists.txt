@@ -24,23 +24,16 @@ set(GGML_CPU_ARM_ARCH "armv8.6-a+dotprod+i8mm" CACHE STRING "" FORCE)
 
 FetchContent_MakeAvailable(llama)
 
-# A mtmd depende de símbolos do llama.cpp que não são exportados pela lib
-# estática padrão. Usar o alvo 'llama' completo (que inclui common/tools) é o
-# caminho suportado pelo próprio projeto. Apenas adicionamos a JNI ao alvo.
+# Compila a JNI ligando contra o alvo 'llama' completo do llama.cpp, que ja
+# arrasta common/, tools/mtmd/, clip e demais simbolos (incluindo audio).
+# Adiciona apenas o proprio llm_jni.cpp como codigo novo.
 add_library(nayllm SHARED llm_jni.cpp)
-target_sources(nayllm PRIVATE
-    ${llama_SOURCE_DIR}/tools/mtmd/mtmd.cpp
-    ${llama_SOURCE_DIR}/tools/mtmd/mtmd-helper.cpp
-    ${llama_SOURCE_DIR}/tools/mtmd/clip.cpp
-    ${llama_SOURCE_DIR}/tools/mtmd/mtmd-image.cpp
-)
-target_link_libraries(nayllm PRIVATE llama ggml)
+target_link_libraries(nayllm PRIVATE llama)
 target_include_directories(nayllm PRIVATE
     ${llama_SOURCE_DIR}/include
     ${llama_SOURCE_DIR}/ggml/include
     ${llama_SOURCE_DIR}/tools/mtmd
     ${llama_SOURCE_DIR}/common
-    ${llama_SOURCE_DIR}/vendor
 )
 target_compile_options(nayllm PRIVATE -O3 -fvisibility=hidden)
 target_link_libraries(nayllm PRIVATE android log)
