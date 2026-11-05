@@ -24,8 +24,10 @@ set(GGML_CPU_ARM_ARCH "armv8.6-a+dotprod+i8mm" CACHE STRING "" FORCE)
 
 FetchContent_MakeAvailable(llama)
 
-# Compila a JNI mais os fontes da mtmd e common/ necessarios. O alvo 'llama'
-# nao inclui mtmd (é uma ferramenta), por isso os .cpp sao adicionados aqui.
+# A mtmd é uma ferramenta do llama.cpp e não é exposta como alvo CMake.
+# A ponte JNI usa apenas a API de visão da mtmd, mas ela depende de symbols
+# espalhados por common/, tools/common e vendor/. Compilar esses .cpp junto
+# evita o link a bibliotecas inexistentes.
 file(GLOB COMMON_CPP ${llama_SOURCE_DIR}/common/*.cpp)
 file(GLOB VENDOR_HASH_CPP ${llama_SOURCE_DIR}/vendor/hash/*.cpp)
 
