@@ -24,23 +24,17 @@ set(GGML_CPU_ARM_ARCH "armv8.6-a+dotprod+i8mm" CACHE STRING "" FORCE)
 
 FetchContent_MakeAvailable(llama)
 
-# Recompila apenas os fontes da mtmd que o app usa. As demais libs do llama.cpp
-# (common, tools/common) são incluídas como fontes para resolver os símbolos.
-file(GLOB COMMON_SOURCES
-    ${llama_SOURCE_DIR}/common/*.cpp
-    ${llama_SOURCE_DIR}/vendor/hash/*.cpp
-)
-
-add_library(nayllm SHARED
-    llm_jni.cpp
+# A mtmd depende de símbolos do llama.cpp que não são exportados pela lib
+# estática padrão. Usar o alvo 'llama' completo (que inclui common/tools) é o
+# caminho suportado pelo próprio projeto. Apenas adicionamos a JNI ao alvo.
+add_library(nayllm SHARED llm_jni.cpp)
+target_sources(nayllm PRIVATE
     ${llama_SOURCE_DIR}/tools/mtmd/mtmd.cpp
     ${llama_SOURCE_DIR}/tools/mtmd/mtmd-helper.cpp
     ${llama_SOURCE_DIR}/tools/mtmd/clip.cpp
     ${llama_SOURCE_DIR}/tools/mtmd/mtmd-image.cpp
-    ${COMMON_SOURCES}
 )
-
-target_link_libraries(nayllm PRIVATE llama ggml log)
+target_link_libraries(nayllm PRIVATE llama mtmd ggml)
 target_include_directories(nayllm PRIVATE
     ${llama_SOURCE_DIR}/include
     ${llama_SOURCE_DIR}/ggml/include
