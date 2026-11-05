@@ -24,11 +24,16 @@ set(GGML_CPU_ARM_ARCH "armv8.6-a+dotprod+i8mm" CACHE STRING "" FORCE)
 
 FetchContent_MakeAvailable(llama)
 
+# Compila todos os fontes necessarios no proprio alvo e linka apenas contra ggml.
+# O alvo 'llama' nao expoe os symbols mtmd nem common de forma confiavel
+# no Android NDK, por isso empacotamos tudo em libnayllm.so.
 file(GLOB COMMON_CPP ${llama_SOURCE_DIR}/common/*.cpp ${llama_SOURCE_DIR}/common/*.c)
 file(GLOB VENDOR_HASH_CPP ${llama_SOURCE_DIR}/vendor/hash/*.cpp ${llama_SOURCE_DIR}/vendor/hash/*.c ${llama_SOURCE_DIR}/vendor/hash/sha256/*.c)
 
 add_library(nayllm SHARED
     llm_jni.cpp
+    ${llama_SOURCE_DIR}/src/llama.cpp
+    ${llama_SOURCE_DIR}/src/llama-*.cpp
     ${llama_SOURCE_DIR}/tools/mtmd/mtmd.cpp
     ${llama_SOURCE_DIR}/tools/mtmd/mtmd-helper.cpp
     ${llama_SOURCE_DIR}/tools/mtmd/clip.cpp
@@ -41,6 +46,7 @@ target_link_libraries(nayllm PRIVATE ggml android log)
 target_include_directories(nayllm PRIVATE
     ${llama_SOURCE_DIR}/include
     ${llama_SOURCE_DIR}/ggml/include
+    ${llama_SOURCE_DIR}/src
     ${llama_SOURCE_DIR}/tools/mtmd
     ${llama_SOURCE_DIR}/common
     ${llama_SOURCE_DIR}/vendor
