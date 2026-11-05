@@ -28,7 +28,7 @@ FetchContent_MakeAvailable(llama)
 # A ponte JNI usa apenas a API de visão da mtmd, mas ela depende de symbols
 # espalhados por common/, tools/common e vendor/. Compilar esses .cpp junto
 # evita o link a bibliotecas inexistentes.
-file(GLOB COMMON_CPP ${llama_SOURCE_DIR}/common/*.cpp)
+file(GLOB COMMON_CPP ${llama_SOURCE_DIR}/common/*.cpp ${llama_SOURCE_DIR}/common/*.c)
 file(GLOB VENDOR_HASH_CPP ${llama_SOURCE_DIR}/vendor/hash/*.cpp)
 
 add_library(nayllm SHARED
